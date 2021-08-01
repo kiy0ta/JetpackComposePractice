@@ -4,11 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.Divider
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,15 +46,18 @@ fun Hello(name: String) {
 }
 
 @Composable
-fun MyScreenContent(names: List<String> = listOf("tanaka", "YAMADA")) {
+fun MyScreenContent(names: List<String> = List(1000) { "Hello Android #$it" }) {
     // UIを再構成する際に失いたくないデータはrememberを使用して、覚えておくことができる
     val counterState = remember { mutableStateOf(0) }
-    Column {
-        for (name in names) {
-            Hello("Hello,$name")
-            Divider(color = Color.Black)
+    Column(modifier = Modifier.fillMaxHeight()) {
+        Column(modifier = Modifier.weight(1f)) {
+            NameList(names = names)
+//            for (name in names) {
+//                Hello("Hello,$name")
+//                Divider(color = Color.Black)
+//            }
+//            Divider(color = Color.Transparent, thickness = 32.dp)
         }
-        Divider(color = Color.Transparent, thickness = 32.dp)
         Counter(
             count = counterState.value,
             updateCount = { newCount -> counterState.value = newCount }
@@ -64,11 +67,25 @@ fun MyScreenContent(names: List<String> = listOf("tanaka", "YAMADA")) {
 
 @Composable
 fun Counter(count: Int, updateCount: (Int) -> Unit) {
-    Button(onClick = { updateCount(count + 1) }) {
+    Button(
+        onClick = { updateCount(count + 1) },
+        colors = ButtonDefaults.buttonColors(backgroundColor = if (count % 2 == 1) Color.Blue else Color.Red)
+    ) {
         Text("I've been clicked $count times")
     }
 }
 
+@Composable
+fun NameList(names: List<String>, modifier: Modifier = Modifier) {
+    // LazyColumnはスクロール可能な列を表示する
+    // 画面に表示されている要素のみをレンダリングするため、大きなリストをレンダリングするときにパフォーマンスを向上させることができる
+    LazyColumn(modifier = modifier) {
+        items(items = names) { it ->
+            Hello(name = it)
+            Divider(color = Color.Black)
+        }
+    }
+}
 
 @Preview("Text preview")
 @Composable
